@@ -1,0 +1,156 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
+
+package corp.model; // change later to corp.person.model . All files should have same!
+option java_package = "corp.model";  //Can differ in each file
+
+option java_outer_classname = "Model"; //muni.api.Model
+option java_generic_services = false; //default, prevents complex generic
+option java_multiple_files = false; //default behavior is false
+
+
+// Person, Person::PostalAddress, Person::Xref
+//Person has one address. Person is Xref'd in a list of sub-systems in the organization
+// Not modeling CommunicationChannel, just using a flat email/phone..
+message Person{
+  //Output only
+  optional uint64 id = 3;
+  optional string firstName = 4; // optional added to test hasFirstName()
+  optional string lastName = 5;
+  //ContactChannels contactChannels = 8;
+  optional string email = 6;
+  optional string phone1 = 7;
+  optional string phone2 = 8;
+  optional PostalAddress address = 9; //For objects no need for optional, hasAddress() works
+  //optional  bool dirty = 10 [default = false];//for boolean getDirty() default is enough, no need for optional
+  map<string, Xref> xrefs = 11; // Will be empty for Subsystem Person objects.
+
+
+  //Output only
+  optional google.protobuf.Timestamp createTime = 1;
+  //Output only
+  optional google.protobuf.Timestamp updateTime = 2;
+}
+message PersonList{
+  repeated Person persons=1;
+}
+message ById{
+  uint64 id = 1;
+}
+
+// Person -> Xref of Person , Case -> Xref if Case
+message Xref{
+  optional uint64 id = 6; // golden personId, or, caseId
+  optional string xrefSystemId = 7; // {"AMANDA"|"HANSEN" ...}
+  optional uint64 xrefId = 8;  //subsystem personid or caseid
+  optional string status = 9; // Person{ACTIVE|INACTIVE}, CASE{QUEUE | INITIATED | EXT_WAIT | INT_WAIT | DONE}
+
+  //Output only
+  optional google.protobuf.Timestamp createTime = 1;
+  //Output only
+  optional google.protobuf.Timestamp updateTime = 2;
+  //Output only  - updated by person/{id}/xref/{subsysId}/sync
+  optional google.protobuf.Timestamp subsysRefreshTime = 3;
+
+
+}
+//Listed in the order of dependency
+message PostalAddress{
+  optional uint64 id = 3;
+  optional string streetNum = 4;
+  optional string streetName = 5;
+  optional string city = 6;
+  optional string province = 7;
+  optional string country = 8;
+  optional string postalCode = 9;
+  optional double lat = 10;//geo
+  optional double lon = 11;
+  //optional  bool dirty = 12 [default=false];
+  //Output only
+  optional google.protobuf.Timestamp createTime = 1;
+  //Output only
+  optional google.protobuf.Timestamp updateTime = 2;
+}
+
+
+
+
+
+
+
+//message Subsystem{
+//  optional string subsystemId =1; //TODO avoid converting to enum, that would make api less generic?
+//
+//}
+
+message Organization {
+  //Output only
+  optional uint64 id = 3;
+  optional string name = 4;
+  optional string website = 5;
+  optional string email = 6;
+  optional string phone1 = 7;
+  optional string phone2 = 8;
+  optional PostalAddress address = 9;
+  optional Person contactPerson = 10;
+  //Output only
+  optional google.protobuf.Timestamp createTime = 1;
+  //Output only
+  optional google.protobuf.Timestamp updateTime = 2;
+}
+
+// Add this in 'agile' manner if the necessity is found.
+//message ContactChannels{ //aggregate, some may be in different tables in backend
+//  Phone phone1 =1;
+//  Phone phone2 = 2;
+//  string email = 3;
+//  PostalAddress postalAddress = 4;
+//}
+
+// This splitting is not of value to business at this moment. Add this in 'agile' manner if need is proven.
+//message Phone{// modeled separately to apply clean data rules
+//  int32 countryCode = 1;
+//  string number = 2;
+//  string ext = 3;
+//}
+
+// Having Phone and Email class is more 'pure', however, lets' go for that in next iternation if needed.
+//message Email{ // Modeled separately to apply clean data rules
+//  string value=1;
+//}
+
+
+//https://developers.google.com/protocol-buffers/docs/proto3#any
+// Use this to ship errors between layers.
+message ErrorInfo {
+  optional string message = 1;
+  repeated google.protobuf.Any details = 2;
+}
+
+
+// A case models info need to do some 'business action(s)'
+// Case may be associated with a geo-address
+// Case may have a Person associated with it - 'customer' contact. Org may use this to ask them more info, inform of status etc
+// Case may be handled by specific employee of an organisation - Org contact
+message Case{
+  //Output only
+  optional uint64 id = 3; // an id from db
+  optional string status = 4; //TODO  convert to enum // BACKLOG, INPROGRESS, WAITING, DONE,
+  optional string description = 9;
+  optional PostalAddress address = 7;
+  optional Person reportedByCustomer = 5;
+  optional string createdByEmployee = 6;
+  repeated string tags = 8 ;//store a list of tags that helps routing, categorizing, reporting //TODO Enum?
+  optional string typeId = 11;// a unique case type id human understandable string
+  map<string, string> typeProps = 12; //The key-value that are relevant for each specific case typeId.
+  map<string, Xref> xrefs = 10; // Subsystem(s) where case is handled. For info requests this may be null.
+
+  //Output only
+  optional google.protobuf.Timestamp createTime = 1;
+  //Output only
+  optional google.protobuf.Timestamp updateTime = 2;
+}
+message CaseList{
+  repeated Case cases=1;
+}

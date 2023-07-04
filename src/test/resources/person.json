@@ -1,0 +1,21 @@
+{
+  "createTime": "2020-10-01T09:03:46Z",
+  "updateTime": "2020-10-01T09:03:46Z",
+  "id": "1",
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "email": "test@gmail",
+  "phone1": "1234",
+  "phone2": "1234",
+  "address": {
+    "createTime": "2020-10-01T09:03:46Z",
+    "updateTime": "2020-10-01T09:03:46Z",
+    "id": "3",
+    "streetNum": "111",
+    "streetName": "New Street",
+    "city": "Toronto",
+    "province": "Ontario",
+    "country": "Canada",
+    "postalCode": "L1L2M2"
+  }
+}

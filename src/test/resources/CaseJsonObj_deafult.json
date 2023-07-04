@@ -1,0 +1,29 @@
+{
+  "id": "1",
+  "status": "AWAIT_TRIAGE",
+  "reportedByCustomer": {
+    "firstName": "Jane",
+    "lastName": "Doe"
+  },
+  "createdByEmployee": "rose",
+  "address": {
+    "streetNum": "111",
+    "streetName": "My St",
+    "postalCode": "L1Lozo"
+  },
+  "tags": [
+    "WATER",
+    "PUBLICAREA",
+    "FEDERAL"
+  ],
+  "description": "Water pipe broken, outside the house",
+  "xrefs": {
+    "AMANDA": {
+      "xrefSystemId": "AMANDA"
+    }
+  },
+  "typeId": "WATER_PIPE_TOFIX",
+  "typeProps": {
+    "location": "ousideresidence"
+  }
+}

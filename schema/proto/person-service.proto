@@ -1,0 +1,121 @@
+syntax = "proto3";
+import "google/api/annotations.proto";
+import "google/api/http.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+
+import "0_corp-models.proto";
+import "case-service.proto";
+package corp.model; //find out how to make it work with "corp.person.service"
+
+option java_outer_classname = "PersonServices"; //muni.api.Model
+option java_generic_services = false; //default, prevents complex generic
+option java_multiple_files = false; //default behavior
+option java_package = "corp.service";
+
+message CreatePersonReq{
+  optional Person person=1;
+  optional google.protobuf.FieldMask create_mask=2;
+}
+
+
+
+
+
+
+
+message SearchRes{
+  optional string status = 1; // success / error?
+  optional int32 count = 2; // num of results
+  optional ErrorInfo error = 3; // if error, add detils?
+  //4-9  reserved.
+  oneof res {
+    PersonList personList = 10;
+    PostalAddressList postalAddressList = 11;
+  }
+}
+
+
+
+message PostalAddressList{
+  repeated PostalAddress addresses = 1;
+}
+
+
+
+message SearchReqPerson{ //Search for a person who's
+  Person person = 1; //firstname/lastname - not for address
+  optional google.protobuf.FieldMask create_mask = 2;
+}
+message SearchReqPostalAddress{
+  PostalAddress postalAddress =1;
+  optional google.protobuf.FieldMask create_mask = 2;
+}
+
+
+service PersonService{
+
+  rpc get(ById) returns (Person){
+    option (google.api.http) = {//byId
+      get: "/mkapp/rest/v1/persons/{id}"
+      //body: "personById"
+    };
+  }
+  rpc create(Person) returns (Person) {//TODO change to CreateReq - generic?
+    // example:
+    //   curl -d '{"id":"99", "firstName": "Bat". "lastName": "Man"}' http://localhost:8080/mkapp/rest/v1/persons/
+    option (google.api.http) = {
+      post: "/mkapp/rest/v1/persons"
+      body: "*"
+    };
+  }
+  rpc update(Person) returns (Person) {
+    option (google.api.http) = {
+      post: "/mkapp/rest/v1/persons"
+      body: "*"
+    };
+  }
+  //Xref - will be included in Person, so no GET. Not "resty"
+  rpc xrefAdd(Xref) returns (Xref) {
+    option (google.api.http) = {
+      post: "/mkapp/rest/v1/persons/{id}/xref/{subsysId}/add"
+      body: "*"
+    };
+  }
+  rpc xrefUpdate(Xref) returns (Xref) {
+    option (google.api.http) = {
+      post: "/mkapp/rest/v1/persons/{id}/xref/{subsysId}/update"
+      body: "*"
+    };
+  }
+  rpc xrefSync(Xref) returns (Xref) {
+    option (google.api.http) = {
+      post: "/mkapp/rest/v1/persons/{id}/xref/{subsysId}/sync"
+      body: "*"
+    };
+  }
+
+  rpc getAll(google.protobuf.Empty) returns (PersonList){//google.protobuf.Empty
+    option (google.api.http) = {
+      get: "/mkapp/rest/v1/persons"
+    };
+  };
+
+  rpc personsLike(SearchReqPerson) returns (SearchRes){
+    option (google.api.http) = {
+      post: "/mkapp/rest/v1/search/persons"
+      body: "person"
+    };
+  };
+
+}
+
+// example:
+//   curl -d '{"id":"99", "firstName": "Bat". "lastName": "Man"}' http://localhost:8080/mkapp/rest/v1/persons/
+
+
+//    option(grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+//      summary: "Add a person"
+//      description: "add a person to Golden Data"
+//      tags: "Person"
+//    };

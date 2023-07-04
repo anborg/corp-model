@@ -1,0 +1,5 @@
+
+
+ //"dirty": false
+
+ dirty boolean flag is not going to toProto() on ProtoUtil.toJson. IT

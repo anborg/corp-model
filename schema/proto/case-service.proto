@@ -1,0 +1,39 @@
+syntax = "proto3";
+import "google/api/annotations.proto";
+import "google/api/http.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "0_corp-models.proto";
+package corp.model; //find out how to make it work with "corp.person.service"
+option java_package = "corp.service";
+option java_outer_classname = "CaseServices"; //muni.api.Model
+option java_generic_services = false; //default, prevents complex generic
+option java_multiple_files = false; //default behavior
+
+service CaseService{
+
+  rpc get(ById) returns (Case){
+    option (google.api.http) = {//byId
+      get: "/mkapp/rest/v1/cases/{id}"
+      //body: "personById"
+    };
+  }
+  rpc create(Case) returns (Case){
+    option (google.api.http) = {//byId
+      post: "/mkapp/rest/v1/cases"
+      body: "case"
+    };
+  }
+  rpc update(Case) returns (Case){
+    option (google.api.http) = {//byId
+      post: "/mkapp/rest/v1/case"
+      body: "case"
+    };
+  }
+
+  rpc getAll(google.protobuf.Empty) returns (CaseList){//google.protobuf.Empty
+    option (google.api.http) = {
+      get: "/mkapp/rest/v1/cases"
+    };
+  };
+}
